@@ -1,7 +1,6 @@
 {
  "format": "velxio-project",
  "version": 1,
- "exportedAt": "2026-07-29T16:47:46.576787+00:00",
  "name": "Sesame Robot \u2014 PCA9685 Edition (Velxio Sim)",
  "boards": [
   {

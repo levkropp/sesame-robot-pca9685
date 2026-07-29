@@ -7,7 +7,6 @@ Re-run this after editing firmware-sim/ or the chip to regenerate the file:
     python3 simulation/generate_vlx.py
 """
 import json
-import datetime
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -146,7 +145,6 @@ file_groups = {
 payload = {
     "format": "velxio-project",
     "version": 1,
-    "exportedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
     "name": "Sesame Robot — PCA9685 Edition (Velxio Sim)",
     "boards": boards,
     "fileGroups": file_groups,
