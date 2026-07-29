@@ -126,12 +126,14 @@ wire("esp32-s3", "GND", "oled", "GND", BLK, "power-gnd")
 for i in range(8):
     wire("pca9685", f"PWM{i}", f"sv{i}", "PWM", PURP, "pwm")
 
-# Servo power rail (separate from logic, like the real buck-converter feed)
-for i in range(8):
-    wire("psu", "SIG", f"sv{i}", "V+", RED, "power-vcc")
-    wire("psu", "GND", f"sv{i}", "GND", BLK, "power-gnd")
+# Servo rail: the PSU feeds the PCA9685's screw terminal; servos draw power
+# THROUGH the board's rail pins — exactly like plugging a real servo's 3-pin
+# connector into the module (servos never touch the PSU directly).
 wire("psu", "SIG", "pca9685", "V+", RED, "power-vcc")
-wire("psu", "GND", "esp32-s3", "GND", BLK, "power-gnd")
+wire("psu", "GND", "pca9685", "GND", BLK, "power-gnd")
+for i in range(8):
+    wire("pca9685", "V+", f"sv{i}", "V+", RED, "power-vcc")
+    wire("pca9685", "GND", f"sv{i}", "GND", BLK, "power-gnd")
 
 # --- file groups ------------------------------------------------------------
 file_groups = {

@@ -388,7 +388,7 @@
     "pinName": "SIG"
    },
    "end": {
-    "componentId": "sv0",
+    "componentId": "pca9685",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -401,7 +401,7 @@
     "pinName": "GND"
    },
    "end": {
-    "componentId": "sv0",
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "color": "#000000",
@@ -410,11 +410,11 @@
   {
    "id": "w18",
    "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
+    "componentId": "pca9685",
+    "pinName": "V+"
    },
    "end": {
-    "componentId": "sv1",
+    "componentId": "sv0",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -423,7 +423,33 @@
   {
    "id": "w19",
    "start": {
-    "componentId": "psu",
+    "componentId": "pca9685",
+    "pinName": "GND"
+   },
+   "end": {
+    "componentId": "sv0",
+    "pinName": "GND"
+   },
+   "color": "#000000",
+   "signalType": "power-gnd"
+  },
+  {
+   "id": "w20",
+   "start": {
+    "componentId": "pca9685",
+    "pinName": "V+"
+   },
+   "end": {
+    "componentId": "sv1",
+    "pinName": "V+"
+   },
+   "color": "#ff4444",
+   "signalType": "power-vcc"
+  },
+  {
+   "id": "w21",
+   "start": {
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "end": {
@@ -434,39 +460,13 @@
    "signalType": "power-gnd"
   },
   {
-   "id": "w20",
-   "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
-   },
-   "end": {
-    "componentId": "sv2",
-    "pinName": "V+"
-   },
-   "color": "#ff4444",
-   "signalType": "power-vcc"
-  },
-  {
-   "id": "w21",
-   "start": {
-    "componentId": "psu",
-    "pinName": "GND"
-   },
-   "end": {
-    "componentId": "sv2",
-    "pinName": "GND"
-   },
-   "color": "#000000",
-   "signalType": "power-gnd"
-  },
-  {
    "id": "w22",
    "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
+    "componentId": "pca9685",
+    "pinName": "V+"
    },
    "end": {
-    "componentId": "sv3",
+    "componentId": "sv2",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -475,7 +475,33 @@
   {
    "id": "w23",
    "start": {
-    "componentId": "psu",
+    "componentId": "pca9685",
+    "pinName": "GND"
+   },
+   "end": {
+    "componentId": "sv2",
+    "pinName": "GND"
+   },
+   "color": "#000000",
+   "signalType": "power-gnd"
+  },
+  {
+   "id": "w24",
+   "start": {
+    "componentId": "pca9685",
+    "pinName": "V+"
+   },
+   "end": {
+    "componentId": "sv3",
+    "pinName": "V+"
+   },
+   "color": "#ff4444",
+   "signalType": "power-vcc"
+  },
+  {
+   "id": "w25",
+   "start": {
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "end": {
@@ -486,39 +512,13 @@
    "signalType": "power-gnd"
   },
   {
-   "id": "w24",
-   "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
-   },
-   "end": {
-    "componentId": "sv4",
-    "pinName": "V+"
-   },
-   "color": "#ff4444",
-   "signalType": "power-vcc"
-  },
-  {
-   "id": "w25",
-   "start": {
-    "componentId": "psu",
-    "pinName": "GND"
-   },
-   "end": {
-    "componentId": "sv4",
-    "pinName": "GND"
-   },
-   "color": "#000000",
-   "signalType": "power-gnd"
-  },
-  {
    "id": "w26",
    "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
+    "componentId": "pca9685",
+    "pinName": "V+"
    },
    "end": {
-    "componentId": "sv5",
+    "componentId": "sv4",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -527,7 +527,33 @@
   {
    "id": "w27",
    "start": {
-    "componentId": "psu",
+    "componentId": "pca9685",
+    "pinName": "GND"
+   },
+   "end": {
+    "componentId": "sv4",
+    "pinName": "GND"
+   },
+   "color": "#000000",
+   "signalType": "power-gnd"
+  },
+  {
+   "id": "w28",
+   "start": {
+    "componentId": "pca9685",
+    "pinName": "V+"
+   },
+   "end": {
+    "componentId": "sv5",
+    "pinName": "V+"
+   },
+   "color": "#ff4444",
+   "signalType": "power-vcc"
+  },
+  {
+   "id": "w29",
+   "start": {
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "end": {
@@ -538,39 +564,13 @@
    "signalType": "power-gnd"
   },
   {
-   "id": "w28",
-   "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
-   },
-   "end": {
-    "componentId": "sv6",
-    "pinName": "V+"
-   },
-   "color": "#ff4444",
-   "signalType": "power-vcc"
-  },
-  {
-   "id": "w29",
-   "start": {
-    "componentId": "psu",
-    "pinName": "GND"
-   },
-   "end": {
-    "componentId": "sv6",
-    "pinName": "GND"
-   },
-   "color": "#000000",
-   "signalType": "power-gnd"
-  },
-  {
    "id": "w30",
    "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
+    "componentId": "pca9685",
+    "pinName": "V+"
    },
    "end": {
-    "componentId": "sv7",
+    "componentId": "sv6",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -579,11 +579,11 @@
   {
    "id": "w31",
    "start": {
-    "componentId": "psu",
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "end": {
-    "componentId": "sv7",
+    "componentId": "sv6",
     "pinName": "GND"
    },
    "color": "#000000",
@@ -592,11 +592,11 @@
   {
    "id": "w32",
    "start": {
-    "componentId": "psu",
-    "pinName": "SIG"
+    "componentId": "pca9685",
+    "pinName": "V+"
    },
    "end": {
-    "componentId": "pca9685",
+    "componentId": "sv7",
     "pinName": "V+"
    },
    "color": "#ff4444",
@@ -605,11 +605,11 @@
   {
    "id": "w33",
    "start": {
-    "componentId": "psu",
+    "componentId": "pca9685",
     "pinName": "GND"
    },
    "end": {
-    "componentId": "esp32-s3",
+    "componentId": "sv7",
     "pinName": "GND"
    },
    "color": "#000000",
