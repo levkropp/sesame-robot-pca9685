@@ -1,0 +1,57 @@
+name: validate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  vlx-project:
+    name: Validate .vlx project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Structural validation
+        run: python3 simulation/validate_vlx.py
+
+      - name: .vlx is up to date with its sources
+        run: |
+          python3 simulation/generate_vlx.py
+          if ! git diff --exit-code -- simulation/sesame-pca9685.vlx; then
+            echo "::error::simulation/sesame-pca9685.vlx is stale. Run 'python3 simulation/generate_vlx.py' and commit the result."
+            exit 1
+          fi
+
+  pca9685-chip:
+    name: Build + behavioral-test PCA9685 chip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install WASI-SDK
+        run: |
+          curl -sL https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-22/wasi-sdk-22.0-linux.tar.gz | sudo tar -xz -C /opt
+          sudo mv /opt/wasi-sdk-22.0 /opt/wasi-sdk
+          /opt/wasi-sdk/bin/clang --version
+
+      - name: Compile chip to WASM
+        run: |
+          mkdir -p /tmp/chipbuild
+          /opt/wasi-sdk/bin/clang \
+            --target=wasm32-unknown-wasip1 -O2 -nostartfiles \
+            -Wl,--import-memory -Wl,--export-table -Wl,--no-entry \
+            -Wl,--export=chip_setup -Wl,--allow-undefined \
+            -I simulation/chip \
+            simulation/chip/pca9685.c -o /tmp/chipbuild/pca9685.wasm
+
+      - name: Behavioral test (wasmtime)
+        run: |
+          pip install wasmtime
+          cd simulation/chip
+          python3 test_chip.py /tmp/chipbuild/pca9685.wasm

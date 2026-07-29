@@ -1,0 +1,15 @@
+{
+  "schema": "velxio-chip/v1",
+  "name": "PCA9685 16-Ch PWM Driver",
+  "author": "levkropp",
+  "license": "MIT",
+  "description": "I2C 16-channel 12-bit PWM/servo driver at 0x40 (Adafruit-compatible register model). Drive 16 servos from 2 I2C wires.",
+  "pins": [
+    "GND", "VCC", "SCL", "SDA", "V+", "",
+    "PWM0", "PWM1", "PWM2", "PWM3",
+    "PWM4", "PWM5", "PWM6", "PWM7",
+    "PWM8", "PWM9", "PWM10", "PWM11",
+    "PWM12", "PWM13", "PWM14", "PWM15"
+  ],
+  "attributes": []
+}

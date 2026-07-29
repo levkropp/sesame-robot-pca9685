@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesame Robot — PCA9685 Edition (No-Solder Fork)</title>
+<meta name="description" content="A fork of dorianborian/sesame-robot that swaps the hardest soldering step for a $14 plug-and-play PCA9685 servo driver board.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="nav">
+    <div class="brand"><span class="dot"></span> Sesame — PCA9685 Edition</div>
+    <nav class="nav-links">
+      <a href="#problem">The Problem</a>
+      <a href="#fix">The Fix</a>
+      <a href="#diff">What Changed</a>
+      <a href="#wiring">Wiring</a>
+      <a href="#firmware">Firmware</a>
+      <a href="#get-started">Get Started</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero wrap">
+    <span class="badge fork">FORK OF dorianborian/sesame-robot</span>
+    <h1>Build Sesame without soldering a <span class="accent">3×8 pin block</span> by hand.</h1>
+    <p class="lead">
+      This fork replaces the hardest step in the hand-wired build — hand-bridging
+      power and ground across eight tightly-packed servo headers — with a single
+      pre-assembled driver board. Servos just plug in.
+    </p>
+    <div class="cta-row">
+      <a class="btn primary" href="#get-started">Get Started</a>
+      <a class="btn secondary" href="https://github.com/dorianborian/sesame-robot" target="_blank" rel="noopener">Original Project ↗</a>
+    </div>
+    <p class="pill-list" style="justify-content:center;">
+      <span class="pill">ESP32-S3-Zero-M (pre-soldered)</span>
+      <span class="pill">PCA9685 Driver Board</span>
+      <span class="pill">~$14 CAD extra part</span>
+      <span class="pill">Zero servo soldering</span>
+    </p>
+  </section>
+
+  <section id="problem" class="wrap">
+    <span class="kicker">Why this fork exists</span>
+    <h2>The stock build asks a lot of your soldering iron</h2>
+    <p class="section-lead">
+      The upstream mini-board guide is genuinely well designed — but one step trips
+      up a lot of first-time builders.
+    </p>
+
+    <div class="grid-2">
+      <div class="card bad">
+        <h3>The stock approach</h3>
+        <p class="quote">
+          "Solder one wire to one end of the pins, then guide it along and remove the
+          insulation. Solder this exposed wire to every middle pin (this creates the
+          5V rail). Do the same for the ground lane." — upstream wiring guide
+        </p>
+        <ul>
+          <li>8 servo headers packed side-by-side on protoboard</li>
+          <li>One bare wire laid across all 8 power pins, soldered in one pass</li>
+          <li>Same again for ground, plus 8 individual signal wires</li>
+          <li>No third hand to hold the wire still while it melts</li>
+        </ul>
+      </div>
+      <div class="card good">
+        <h3>This fork's approach</h3>
+        <ul>
+          <li>Buy a $14 CAD PCA9685 driver board — headers already soldered at the factory</li>
+          <li>Plug all 8 servo connectors straight into it</li>
+          <li>Connect 4 wires (I2C) from the S3 Mini to the driver board</li>
+          <li>With the pre-soldered S3-Zero-M: <strong>zero soldering</strong></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="fix" class="wrap">
+    <span class="kicker">The part that fixes it</span>
+    <h2>PCA9685 16-Channel PWM Servo Driver</h2>
+    <p class="section-lead">
+      A small, extremely common hobby-robotics board. It already has 16 sets of
+      pre-soldered 3-pin male headers, and talks to the microcontroller over the
+      same 2-wire I2C bus the OLED already uses.
+    </p>
+    <div class="price-tag">
+      <span class="amount">$14.20</span>
+      <span class="currency">CAD · Amazon.ca · Amazon's Choice · 4.3★ (73 reviews)</span>
+    </div>
+    <p>
+      <a href="https://www.amazon.ca/PCA9685-Interface-Controller-Compatible-Raspberry/dp/B07RMTN4NZ" target="_blank" rel="noopener">
+        → Dorhea PCA9685 16 Channel 12-Bit PWM Servo Driver Board (Amazon.ca)
+      </a>
+    </p>
+  </section>
+
+  <section id="diff" class="wrap">
+    <span class="kicker">Side by side</span>
+    <h2>What changed vs. upstream</h2>
+    <table class="diff">
+      <thead>
+        <tr><th>Area</th><th>Upstream</th><th>This fork</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Servo connection</td>
+          <td class="old">Solder 8× 3-pin headers + bus wires on protoboard</td>
+          <td class="new">Plug servos into PCA9685 (pre-soldered)</td>
+        </tr>
+        <tr>
+          <td>MCU ↔ servo wiring</td>
+          <td class="old">8 individual GPIO pins, direct PWM</td>
+          <td class="new">4 wires total (I2C), shared bus with OLED</td>
+        </tr>
+        <tr>
+          <td>Firmware servo driver</td>
+          <td class="old"><code>ESP32Servo</code>, direct <code>.attach()</code>/<code>.write()</code></td>
+          <td class="new"><code>Adafruit_PWMServoDriver</code> over I2C</td>
+        </tr>
+        <tr>
+          <td>New parts needed</td>
+          <td class="old">—</td>
+          <td class="new">1× PCA9685 board (~$14 CAD)</td>
+        </tr>
+        <tr>
+          <td>Parts no longer needed</td>
+          <td class="old">—</td>
+          <td class="new">Protoboard + breakaway headers (for servo wiring)</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="wiring" class="wrap">
+    <span class="kicker">Physical wiring</span>
+    <h2>Only 4 wires connect the two boards</h2>
+    <p class="section-lead">Everything after that is push-fit servo connectors.</p>
+
+    <div class="diagram" style="padding:16px; background:#ffffff;">
+      <img src="wiring-diagram.svg" alt="Wiring diagram: ESP32-S3 Mini to PCA9685 driver board to 8 servos, with OLED sharing the I2C bus and battery power going to a separate screw terminal" style="width:100%; height:auto; display:block; border-radius:8px;">
+    </div>
+
+    <ol class="steps" style="margin-top:32px;">
+      <li><strong>Wire the OLED</strong> to the S3 Mini (GPIO8=SDA, GPIO9=SCL).</li>
+      <li><strong>Connect 4 wires</strong> from the S3 Mini to the PCA9685 (table above). SDA/SCL can tap the same wires already going to the OLED.</li>
+      <li><strong>Wire servo power</strong> (battery/5V) into the PCA9685's screw terminal — not through the S3 Mini.</li>
+      <li><strong>Plug each servo</strong> into channels 0–7 in order, matching "motor 1" → channel 0, etc.</li>
+      <li><strong>Flash the modified firmware</strong> included in this fork — everything else (Wi-Fi, web UI, API, Sesame Studio) behaves identically to upstream.</li>
+    </ol>
+  </section>
+
+  <section id="firmware" class="wrap">
+    <span class="kicker">Code changes</span>
+    <h2>A small, contained firmware diff</h2>
+    <p class="section-lead">
+      Four spots in <code>sesame-firmware-main.ino</code> change. Motor numbering and
+      leg mapping are untouched, so animations, the web UI, and the JSON API all keep
+      working exactly as before.
+    </p>
+    <pre class="code"><span class="del">- #include &lt;ESP32Servo.h&gt;</span>
+<span class="add">+ #include &lt;Adafruit_PWMServoDriver.h&gt;</span>
+
+<span class="del">- Servo servos[8];</span>
+<span class="del">- const int servoPins[8] = {1, 2, 4, 6, 8, 10, 13, 14}; // GPIO pins</span>
+<span class="add">+ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();</span>
+<span class="add">+ const int servoPins[8] = {0, 1, 2, 3, 4, 5, 6, 7};    // PCA9685 channels</span>
+
+<span class="ctx">  setup() {</span>
+<span class="del">-   ESP32PWM::allocateTimer(...); servos[i].attach(servoPins[i], 732, 2929);</span>
+<span class="add">+   pwm.begin(); pwm.setPWMFreq(50);</span>
+<span class="ctx">  }</span>
+
+<span class="ctx">  setServoAngle(channel, angle) {</span>
+<span class="del">-   servos[channel].write(adjustedAngle);</span>
+<span class="add">+   pwm.setPWM(servoPins[channel], 0, usToTicks(pulseUs));</span>
+<span class="ctx">  }</span></pre>
+    <p style="margin-top:16px; color:var(--muted);">
+      Requires the <strong>Adafruit PWM Servo Driver Library</strong> (Arduino Library
+      Manager) instead of <code>ESP32Servo</code>. Full firmware file lives in
+      <code>firmware/sesame-firmware-main.ino</code> in this repo.
+    </p>
+  </section>
+
+  <section id="get-started" class="wrap">
+    <span class="kicker">Ready to build</span>
+    <h2>Get started</h2>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="card">
+        <h3 style="display:block;">Optional: print the "sunroof" top cover</h3>
+        <p style="color:var(--muted); margin-bottom:16px;">
+          A variant top cover with a 30x10mm cutout on the crown for PCA9685 connector/wire
+          access. The internal cavity already fits the board fine without it --
+          this is for easy access, not a structural requirement. Fully
+          parametric OpenSCAD source included if you want a different size.
+        </p>
+        <img src="top-cover-sunroof-preview.png" alt="Top cover with PCA9685 sunroof cutout" style="width:100%; border-radius:10px; border:1px solid var(--border);">
+      </div>
+      <div class="card">
+        <h3 style="display:block;">Recommended: Waveshare ESP32-S3-Zero-M</h3>
+        <p style="color:var(--muted);">
+          No S2 Mini listing guarantees pre-soldered pins -- so this fork uses an
+          S3 Mini instead. This listing <em>explicitly</em> guarantees pre-soldered
+          headers, and it's a more capable dual-core chip to boot:
+        </p>
+        <a class="btn secondary" href="https://www.amazon.ca/dp/B0G43ZYD8G" target="_blank" rel="noopener">3x ESP32-S3-Zero-M -- $39.99 CAD (~$13.30 each)</a>
+        <p style="color:var(--muted); font-size:0.85rem; margin-top:10px;">
+          ESP32-S3FH4R2 dual-core 240MHz, 4MB flash / 2MB PSRAM, Wi-Fi + BLE 5, USB-C.
+          I2C on GPIO8 (SDA) / GPIO9 (SCL) -- firmware already configured. Note:
+          avoid GPIO21 (onboard RGB LED) despite some older Waveshare docs suggesting it.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="display:block;">1. Read the full writeup</h3>
+        <p style="color:var(--muted);">Complete wiring + firmware + BOM delta docs.</p>
+        <a class="btn secondary" href="https://github.com/dorianborian/sesame-robot" target="_blank" rel="noopener">docs/pca9685-fork/README.md</a>
+      </div>
+      <div class="card">
+        <h3 style="display:block;">2. Buy the one new part</h3>
+        <p style="color:var(--muted);">PCA9685 16-channel driver board, ~$14 CAD.</p>
+        <a class="btn secondary" href="https://www.amazon.ca/PCA9685-Interface-Controller-Compatible-Raspberry/dp/B07RMTN4NZ" target="_blank" rel="noopener">View on Amazon.ca</a>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:24px; border-color: rgba(94,230,176,0.4);">
+      <h3 style="display:block;">⚡ Try the whole build in a simulator first</h3>
+      <p style="color:var(--muted);">
+        Run the real firmware on an emulated ESP32-S3 with 8 virtual servos, the
+        PCA9685 driver, and the OLED face — drive walk/wave/dance from the Serial
+        Monitor before wiring anything. Download the project file, then open it at
+        <a href="https://velxio.dev" target="_blank" rel="noopener">velxio.dev</a>.
+      </p>
+      <a class="btn primary" href="sesame-pca9685.vlx" download>Download sesame-pca9685.vlx</a>
+      <a class="btn secondary" href="https://github.com/levkropp/pca9685-velxio" target="_blank" rel="noopener">PCA9685 chip source</a>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>
+      This is a fork of <a href="https://github.com/dorianborian/sesame-robot" target="_blank" rel="noopener">dorianborian/sesame-robot</a>
+      by <a href="https://www.doriantodd.com/" target="_blank" rel="noopener">Dorian Todd</a>.
+      All credit for the original hardware, firmware, and design goes to the original project —
+      this fork only changes how the servos are wired and driven.
+    </p>
+    <p>Licensed under Apache-2.0, same as upstream.</p>
+  </div>
+</footer>
+
+</body>
+</html>

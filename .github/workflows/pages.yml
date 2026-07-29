@@ -1,0 +1,43 @@
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy explainer site to GitHub Pages
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # The site is plain static HTML/CSS — no build step. The Express server
+      # in website/ only exists for local previewing (see website/README.md).
+      # Stage the static site plus the Velxio project file so visitors can
+      # download the simulation straight from the page.
+      - name: Stage site + simulation file
+        run: |
+          mkdir -p /tmp/site
+          cp -r website/public/* /tmp/site/
+          cp simulation/sesame-pca9685.vlx /tmp/site/
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: /tmp/site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
