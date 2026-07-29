@@ -28,6 +28,34 @@ jobs:
             exit 1
           fi
 
+  vendored-chip-sync:
+    name: Vendored chip matches levkropp/pca9685-velxio
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: fork
+
+      - uses: actions/checkout@v4
+        with:
+          repository: levkropp/pca9685-velxio
+          path: chip-upstream
+
+      - name: Compare vendored copy against upstream master
+        run: |
+          status=0
+          for f in pca9685.c pca9685.chip.json velxio-chip.h test_chip.py dist/pca9685.wasm; do
+            if ! cmp -s "fork/simulation/chip/$f" "chip-upstream/$f"; then
+              echo "::error::simulation/chip/$f differs from levkropp/pca9685-velxio@master."
+              status=1
+            fi
+          done
+          if [ "$status" -ne 0 ]; then
+            echo "::error::Vendored chip is stale. Re-copy the files from pca9685-velxio into simulation/chip/, then run 'python3 simulation/generate_vlx.py' and commit."
+            exit 1
+          fi
+          echo "vendored chip is in sync with upstream"
+
   pca9685-chip:
     name: Build + behavioral-test PCA9685 chip
     runs-on: ubuntu-latest
