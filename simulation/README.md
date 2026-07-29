@@ -28,6 +28,14 @@ The PCA9685 driver itself is a [custom Velxio chip](https://github.com/levkropp/
    Library Manager.
 4. Press **Run**.
 
+> [!NOTE]
+> **Self-hosting on the `master` image?** Running the ESP32-S3 + custom-chip
+> path locally currently needs the toolchain/ROM files and three runtime fixes
+> in [`velxio-patches/`](velxio-patches/) (all verified live: the full firmware
+> boots, OLED renders, and the PCA9685 chip emits correct 50 Hz PWM on all 8
+> channels during walk animations — 24k edges, 0 errors). velxio.dev may or may
+> not have these yet; the patches folder has details and is upstream-PR material.
+
 ## What you should see on first run
 
 - Serial Monitor: boot messages, ending with
