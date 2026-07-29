@@ -453,6 +453,18 @@ def main() -> None:  # noqa: C901  (complexity OK for inline worker)
         args_list.extend([b'-icount', b'3'])
 
     # ── WiFi NIC (slirp user-mode networking) ──────────────────────────────
+    # The esp32s3-picsimlab machine has no esp32_wifi device model — asking
+    # for it only yields "requested NIC was not created (not supported by
+    # this machine?)" and, intermittently, a hard SIGSEGV (-11) later in
+    # machine init. Only esp32 (LX6) and esp32c3 (RISC-V) machines support
+    # WiFi in this QEMU fork, so skip the NIC entirely on esp32s3 instead of
+    # passing a broken one.
+    s3_machine = 's3' in machine and 'c3' not in machine
+    if wifi_enabled and s3_machine:
+        _log('WiFi requested but the esp32s3 machine has no WiFi support in '
+             'this QEMU build — continuing without network (firmware must not '
+             'rely on WiFi).')
+        wifi_enabled = False
     if wifi_enabled:
         nic_model = 'esp32c3_wifi' if 'c3' in machine else 'esp32_wifi'
         nic_arg = f'user,model={nic_model},net=192.168.4.0/24'
@@ -1605,6 +1617,7 @@ def main() -> None:  # noqa: C901  (complexity OK for inline worker)
                         wasm_bytes = base64.b64decode(wasm_b64)
                         attrs      = s.get('attrs', {}) or {}
                         pin_map    = s.get('pin_map', {}) or {}
+                        component_id = s.get('component_id') or s.get('component')
 
                         # ── Plumbing: hook the runtime to QEMU's live peripherals ──
                         # GPIO output: chip's vx_pin_write → qemu_picsimlab_set_pin
@@ -1648,6 +1661,7 @@ def main() -> None:  # noqa: C901  (complexity OK for inline worker)
                             pin_reader=_chip_pin_reader,
                             uart_writer=_chip_uart_writer,
                             timer_scheduler=_chip_timer_scheduler,
+                            component_id=component_id,
                         )
                         runtime.run_chip_setup()
 

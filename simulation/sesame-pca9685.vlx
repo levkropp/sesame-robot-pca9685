@@ -14,7 +14,8 @@
    "libraries": [
     "Adafruit SSD1306",
     "Adafruit GFX Library",
-    "Adafruit PWM Servo Driver Library"
+    "Adafruit PWM Servo Driver Library",
+    "Adafruit BusIO"
    ]
   }
  ],

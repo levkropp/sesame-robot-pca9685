@@ -51,6 +51,10 @@ boards = [
             "Adafruit SSD1306",
             "Adafruit GFX Library",
             "Adafruit PWM Servo Driver Library",
+            # BusIO provides Adafruit_I2CDevice.h (dependency of SSD1306 and the
+            # PWM driver). Without it in the manifest the scoped compile fails
+            # on Adafruit_I2CDevice.h and has to fall back to scan-all.
+            "Adafruit BusIO",
         ],
     }
 ]

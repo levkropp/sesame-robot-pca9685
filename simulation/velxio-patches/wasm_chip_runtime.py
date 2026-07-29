@@ -91,6 +91,7 @@ class WasmChipRuntime:
         pin_reader: Optional[Callable[[int], int]] = None,
         uart_writer: Optional[Callable[[int, bytes], None]] = None,
         timer_scheduler: Optional[Callable[["WasmChipRuntime"], None]] = None,
+        component_id: str | None = None,
     ):
         """
         Args:
@@ -117,6 +118,7 @@ class WasmChipRuntime:
         )
 
         self._attrs = dict(attrs or {})
+        self._component_id = component_id
         self._emit = emit or (lambda _payload: None)
         self._stdout_buf = ""
 
@@ -397,6 +399,14 @@ class WasmChipRuntime:
                     self._pin_writer(p["gpio"], v)
                 except Exception as e:
                     self._emit({"type": "chip_error", "where": "pin_write", "error": str(e)})
+            # Surface every chip output edge to the frontend so canvas parts
+            # wired to this chip pin (servos, LEDs, other chips) see it via the
+            # PinManager — not just pins mapped to real board GPIOs.
+            if self._component_id is not None:
+                self._emit({"type": "chip_pin_write",
+                            "component": self._component_id,
+                            "pin": p["name"],
+                            "state": v})
 
         def vx_pin_read_analog(handle: int) -> float:
             if 0 <= handle < len(self._pins):

@@ -41,14 +41,24 @@ docker cp simulation/velxio-patches/esp32s3_rev0_rom.bin velxio:/app/lib/
    pointer until it blew up ("call stack exhausted" traps under animation
    load). Now every WASM entry goes through a reentrant lock.
 
-## 3. `esp32_worker.py` — chip-timer clock fix
+## 3. `esp32_worker.py` — chip-timer clock fix + esp32s3 WiFi NIC guard
 
-`velxio-patches/esp32_worker.py` replaces `/app/app/services/esp32_worker.py`:
-the chip-timer thread computed its "now" from the worker's own epoch while
-chip deadlines are expressed in each runtime's sim clock — mixing the two
-epochs made the wait overshoot and then fire huge catch-up bursts that
-distorted chip PWM. The wait is now computed per-runtime from that runtime's
-own `sim_now_nanos()`.
+`velxio-patches/esp32_worker.py` replaces `/app/app/services/esp32_worker.py`
+with two changes:
+
+1. **Chip-timer clock fix** — the chip-timer thread computed its "now" from
+   the worker's own epoch while chip deadlines are expressed in each runtime's
+   sim clock — mixing the two epochs made the wait overshoot and then fire
+   huge catch-up bursts that distorted chip PWM. The wait is now computed
+   per-runtime from that runtime's own `sim_now_nanos()`.
+2. **esp32s3 WiFi NIC guard** — the frontend sends `wifi_enabled: true` by
+   default for ESP32 boards, but the `esp32s3-picsimlab` machine has no
+   `esp32_wifi` device model in this QEMU build. Asking for the NIC only
+   produces "requested NIC was not created (not supported by this machine?)"
+   and, intermittently, a hard **SIGSEGV (exit code -11)** during machine
+   init — which is what the UI then shows as the misleading "ESP32 crash
+   detected — cache error (IDF incompatibility)" banner. The worker now skips
+   the NIC on esp32s3 and continues without network instead of crashing.
 
 ## Applying
 
