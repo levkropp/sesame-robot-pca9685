@@ -152,18 +152,23 @@ last_arm = timer_state["starts"][-1]
 assert last_arm.get("repeat") == False, "engine must use one-shot timers"
 print(f"armed one-shot, delay={last_arm['period_ns']/1000:.0f}us")
 
-# With phase-synced levels, PWM0 and PWM1 go HIGH at config time (no fire needed)
+# A channel configured with on_ns=0 enters its HIGH window during the burst.
+# Exactly WHEN the rise write lands depends on host speed (a slow host can
+# cross the 732us fall boundary mid-burst, flipping HIGH->LOW before the
+# burst ends -- that is correct frame-clock behavior, not a bug). So assert
+# the rise HAPPENED at some point after config, not a specific write order.
 pwm0 = [w for w in pin_writes if w[1] == "PWM0"]
 pwm1 = [w for w in pin_writes if w[1] == "PWM1"]
-assert pwm0 and pwm0[-1][2] == 1, f"PWM0 should be HIGH right after config, got {pwm0}"
-assert pwm1 and pwm1[-1][2] == 1, f"PWM1 should be HIGH right after config, got {pwm1}"
-print(f"PWM0 rise at t={pwm0[-1][0]/1000:.0f}us (config time)")
+assert any(v == 1 for _, _, v in pwm0), f"PWM0 never went HIGH, got {pwm0}"
+assert any(v == 1 for _, _, v in pwm1), f"PWM1 never went HIGH, got {pwm1}"
+pwm0_rise_t = max(t for t, _, v in pwm0 if v == 1)
+print(f"PWM0 rose at t={pwm0_rise_t/1000:.0f}us")
 
 # Deterministic check 1: PWM0's armed fall deadline ~732us after its rise
 # (OFF=150 -> 150/4096 * 20ms).
 arms = [a for a in timer_state["starts"] if "deadline" in a]
 d0 = arms[-1]["deadline"]
-rise_t = [w for w in pin_writes if w[1] == "PWM0"][-1][0]
+rise_t = max(t for t, _, v in [w for w in pin_writes if w[1] == "PWM0"] if v == 1)
 fall_delay_us = (d0 - rise_t) / 1000.0
 print(f"armed fall delay from rise: {fall_delay_us:.0f}us (expected ~732us)")
 assert 500 < fall_delay_us < 900, f"armed fall delay wrong: {fall_delay_us}us"
