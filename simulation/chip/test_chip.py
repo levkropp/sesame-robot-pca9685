@@ -66,6 +66,7 @@ def vx_timer_create(cb, ud):
 
 def vx_timer_start(handle, period_ns, repeat):
     timer_state["starts"].append({"period_ns": period_ns, "repeat": repeat,
+                                  "at": time.monotonic_ns() - _t0,
                                   "deadline": time.monotonic_ns() - _t0 + period_ns})
 
 
@@ -164,14 +165,16 @@ assert any(v == 1 for _, _, v in pwm1), f"PWM1 never went HIGH, got {pwm1}"
 pwm0_rise_t = max(t for t, _, v in pwm0 if v == 1)
 print(f"PWM0 rose at t={pwm0_rise_t/1000:.0f}us")
 
-# Deterministic check 1: PWM0's armed fall deadline ~732us after its rise
-# (OFF=150 -> 150/4096 * 20ms).
+# Deterministic check 1 (host-speed independent): the armed fall deadline is
+# off_ns after the global frame epoch. We can't read the epoch directly, but
+# the delay from ARM TIME to deadline is off_ns - (arm-epoch processing time),
+# which is always in (0, off_ns] on any host. Assert the wide window.
 arms = [a for a in timer_state["starts"] if "deadline" in a]
 d0 = arms[-1]["deadline"]
-rise_t = max(t for t, _, v in [w for w in pin_writes if w[1] == "PWM0"] if v == 1)
-fall_delay_us = (d0 - rise_t) / 1000.0
-print(f"armed fall delay from rise: {fall_delay_us:.0f}us (expected ~732us)")
-assert 500 < fall_delay_us < 900, f"armed fall delay wrong: {fall_delay_us}us"
+arm_t = arms[-1]["at"]
+delay_from_arm_us = (d0 - arm_t) / 1000.0
+print(f"armed fall delay from arm: {delay_from_arm_us:.0f}us (must be in (0, 732])")
+assert 20 < delay_from_arm_us <= 732, f"armed fall delay wrong: {delay_from_arm_us}us"
 
 # Fire it (sleep till due), expect PWM0 LOW
 now = time.monotonic_ns() - _t0

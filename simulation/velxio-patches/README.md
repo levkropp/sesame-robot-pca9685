@@ -60,6 +60,27 @@ with two changes:
    detected — cache error (IDF incompatibility)" banner. The worker now skips
    the NIC on esp32s3 and continues without network instead of crashing.
 
+## 4. `esp32_lib_manager.py` — startup-crash retry + set_pin bounds check
+
+`velxio-patches/esp32_lib_manager.py` replaces `/app/app/services/esp32_lib_manager.py`
+with two changes:
+
+1. **Startup-crash retry** — the esp32s3 machine init in this QEMU build
+   segfaults intermittently before any firmware code runs. The manager retries
+   a worker that dies by signal (e.g. -11) before booting, up to 3 attempts,
+   and only shows the crash banner if it still fails.
+2. **set_pin bounds check** — THE ACTUAL ROOT CAUSE of the persistent
+   `worker_exit code: -11` crash. The frontend builds `pin_map` for custom
+   chips with *synthetic* pin numbers (100000+) for chip pins wired to
+   non-board components (e.g. servos). During chip setup the runtime writes
+   initial LOW to every OUTPUT pin via `qemu_picsimlab_set_pin` — including
+   those synthetic pins, whose slot numbers are far outside the 40-slot QEMU
+   GPIO table, so the write goes out of bounds and SIGSEGVs. The worker's
+   `_chip_pin_writer` now only calls `set_pin` for real board GPIOs
+   (`0 <= gpio < 40`). Servo routing doesn't need `set_pin` at all — it flows
+   through the `chip_pin_write` event to the frontend's synthetic-pin
+   PinManager instead.
+
 ## Applying
 
 ```bash
