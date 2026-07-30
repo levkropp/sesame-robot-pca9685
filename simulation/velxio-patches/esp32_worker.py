@@ -1622,7 +1622,13 @@ def main() -> None:  # noqa: C901  (complexity OK for inline worker)
                         # ── Plumbing: hook the runtime to QEMU's live peripherals ──
                         # GPIO output: chip's vx_pin_write → qemu_picsimlab_set_pin
                         def _chip_pin_writer(gpio: int, value: int, _lib=lib):
-                            _lib.qemu_picsimlab_set_pin(gpio + 1, value)
+                            # Synthetic chip-pin numbers from the frontend's
+                            # synthetic pin space (>=100000) are NOT real QEMU
+                            # GPIOs — writing them with set_pin writes out of
+                            # bounds and segfaults. Only real board GPIOs (the
+                            # board's own pin numbering) get a set_pin call.
+                            if 0 <= gpio < _GPIO_COUNT:
+                                _lib.qemu_picsimlab_set_pin(gpio + 1, value)
 
                         # GPIO input: chip reads current QEMU pin state.
                         def _chip_pin_reader(gpio: int, _store=_pin_state):
